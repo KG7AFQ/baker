@@ -1,0 +1,23 @@
+Tapio, OH2KKU and Hessu, OH7LZB for creating and maintaining the Finnish
+APRS Parser. Absolutely fabulous work. Thanks for helping with the porting
+job too!
+
+Team OH3TR for providing equipment and facilites for testing.
+
+Frank, VE1FIS for reporting the issue with empty-string-regexs and for the
+idea of AX.25-frame conversion functions.
+
+Andrew Elwell for pointing out the unclear licensing terms and creating the
+RPM package.
+
+Gordon, MM0YEQ for pkg-config metadata file and fixing the RAD2DEG() macro.
+
+Dan, KK7DS for fixing hbit setting in tnc2_to_ax25().
+
+Martin, LA5NTA for fixing a bug in parse_wx_peet_logging.
+
+Iain, MM6MVQ for packaging libfap into Debian.
+
+Fred, MW0LBR for reporting issues with timestamps
+
+David, KI6ZHD and Fred, MW0LBR for reporting a crash in telemetry parsing.
