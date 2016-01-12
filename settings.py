@@ -2,9 +2,9 @@ APRS_SERVER_HOST = 'socal.aprs2.net'
 APRS_SERVER_PORT = 14580
 APRS_USER = 'KG7AFQ'
 APRS_PASSCODE = '18869'
-FILTER_DETAILS = "filter g/BEAR100\n"
+FILTER_DETAILS = "filter g/ProvMar\n"
 
-BAKER_DB = '/var/lib/sqlite/BEAR100-2015.db'
+BAKER_DB = '/var/lib/sqlite/Baker.db'
 # Each packet sent needs to receive an ACKMessage back, if no ACKMessage arrives in SEND-PACKETS_DELAY.Seconds(n), then send the packet again and wait SEND-PACKETS_DELAY.Seconds(n + 1)
 SEND_PACKETS_DELAY = [1,10,40,70,130,190,250] # Baker sends n times, waiting for msgack response. Baker only waits for n-1 msgack responses. Effective (send and listen) send times is n-1 
 
@@ -19,7 +19,7 @@ BAKER_COMMANDS = {
 					#		# of parameters to allow - the client needs to send this number of string parameters to execute this command on the server
 					#		debug is available - if True then send a debug message back to client regarding the validity of this command
 					
-					'i': ['BakerCmdInsertRunner', 6, True], # Insert or update participant location ex. 'i,ly31,0224,1452107238,DNF,Call Support', insert, station, competitor, time in, time out, comment
+					'i': ['BakerCmdInsertRunner', 6, True], # Insert or update participant location ex. 'i,ly31,0224,1452107238,1452107238,All is well', insert, station, competitor, time in, time out, comment
 					# Reports of person, callSign, support crew (DNF, DNS, last 5 from callsign, etc.)
 					'r1': ['BakerCmdReport1', 3, True], # current station, competitor , ex. r1,ly15,022, report1 command, station, competitor
 					#Record count by callSign, average MsgACK, server time up, thread count

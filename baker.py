@@ -25,7 +25,7 @@ from datetime import datetime, timedelta
 import threading
 import time
 import select
-import sqlite3
+#import sqlite3
 import apsw # sqlite library w/threading support	
 from pubsub import pub
 # see this page for changes to libfap.py V 1/25/2015 https://www.raspberrypi.org/forums/viewtopic.php?t=44930&p=356499
@@ -40,8 +40,8 @@ class clsBakerMessage():
 
 	def __init__(self, src, dest, msg, msgid, msgack, orig_packet, dtarrival, key=''):
 		try:
-			self.src = src
-			self.dest = dest
+			self.src = src.upper()
+			self.dest =  dest.upper()
 			self.msg = msg.replace("'","?").replace('"','?') # replace single and double quotes with question mark
 			self.msgid = msgid
 			self.msgack = msgack # To match msgack in ReceiveQ to item sent from Send Q, use key
@@ -155,12 +155,12 @@ class clsBakerCommand():
 			if debuglevel > 1:
 				print 'valid baker command - ', self.bkrCmds[cmdKey][0], self.bkrCmds[cmdKey][1], self.bkrCmds[cmdKey][2] 
 			if len(self.lstCmd) == self.bkrCmds[cmdKey][1]:
-				if debuglevel > 1:
-					print 'valid baker args - cmdKey - ', cmdKey
+				if debuglevel > 0:
+					print ('%s %s - A [%s, from %s]' % (datetime.strftime(datetime.now(), '%Y-%m-%d %H:%M:%S'),'APRS IS > Baker Command ', bmsg.msg, bmsg.src))
 				pub.sendMessage(self.bkrCmds[cmdKey][0], arg1=bmsg, arg2=self.lstCmd)
 		else:
 			if debuglevel > 0:
-				print ('%s %s - A [%s, %s, %s, %s]' % (datetime.strftime(datetime.now(), '%Y-%m-%d %H:%M:%S'),'APRS IS < Baker Command N/A', bmsg.src, bmsg.dest, bmsg.msg, bmsg.msgid))
+				print ('%s %s - A [%s, %s, %s, %s]' % (datetime.strftime(datetime.now(), '%Y-%m-%d %H:%M:%S'),'APRS IS > Baker Command N/A', bmsg.src, bmsg.dest, bmsg.msg, bmsg.msgid))
 							
 class clsAPRSConnection():
 
@@ -200,7 +200,7 @@ class clsAPRSConnection():
 	def PacketSend(self, arg1):
 		pkt2Send = arg1
 		try:
-			self.sock_file.write(pkt2Send)
+			self.sock_file.write(pkt2Send+ '\r\n')
 			self.sock_file.flush()
 		except Exception as error:
 			print('exception in clsAPRSConnection.PacketSend')
@@ -215,7 +215,6 @@ class clsBakerDB():
 				print "APSW version",apsw.apswversion() # from the extension module
 				print "SQLite lib version",apsw.sqlitelibversion() # from the sqlite library code
 				print "SQLite header version",apsw.SQLITE_VERSION_NUMBER # from the sqlite header file at compile time
-#			self.dbcon = apsw.Connection('/var/lib/sqlite/BEAR100-2015.db', detect_types=apsw.PARSE_DECLTYPES|apsw.PARSE_COLNAMES) 
 			self.dbcon = apsw.Connection(settings.BAKER_DB) 
 			self.lastrowid = 0
 			self.seconds = 6 # time to sleep before final close of DB
@@ -234,7 +233,6 @@ class clsBakerDB():
 	def bmRecSave(self, arg1):
 		#save rec'd Baker Packet to DB Table
 		bmsg = arg1
-		#self.saved_valid_message = False
 		data = (bmsg.dest, bmsg.src, bmsg.msg, bmsg.msgid, bmsg.msgack, bmsg.aprspacket, str(bmsg.dtarrival))
 		if self.dbcon:
 			cur = self.dbcon.cursor()
@@ -243,9 +241,7 @@ class clsBakerDB():
 				cnt = cur.execute ("insert into baker_packets_recd (dest, src, msg, msgid, msgack, aprspacket, dtarrival) values (?,?,?,?,?,?,?)", data)
 				cnt = self.dbcon.last_insert_rowid()
 				if cnt > 0:
-		#			self.saved_valid_message = True
 					self.lastrowid = self.dbcon.last_insert_rowid()
-					#print 'last row id - ', self.dbcon.last_insert_rowid()
 				if debuglevel > 1:
 					cur.execute('SELECT * from baker_packets_recd order by id desc limit 10')
 					rows = cur.fetchall()
@@ -265,8 +261,6 @@ class clsBakerDB():
 	def BakerCmdInsertRunner(self, arg1, arg2):
 		bmsg = arg1
 		lstbcmd = arg2
-		if debuglevel > 1:
-			print 'Baker Command List - ', lstbcmd 
 		if self.dbcon:
 			cur = self.dbcon.cursor()
 			try:
@@ -274,8 +268,6 @@ class clsBakerDB():
 				data = (lstbcmd[1], lstbcmd[2])
 				cnt = 0
 				for id, dest, src, station, competitor, dtin, dtout, comment in (cur.execute ("select id, dest, src, station, competitor, dtin, dtout, comment from baker_events where station = ? and competitor = ? limit 1", data)):
-					#print 'e2iso - ',BakerCommon.epoch2iso8601time(lstbcmd[3]), type(BakerCommon.epoch2iso8601time(lstbcmd[3]))
-					#print 'iso2e - ',BakerCommon.iso86012epochtime('2016-01-06 12:07:18'), type(BakerCommon.iso86012epochtime('2016-01-06 12:07:18'))
 					cnt = 1
 					# The record exists, so change the values and update it
 					newdtin = str(lstbcmd[3])
@@ -297,7 +289,7 @@ class clsBakerDB():
 					rows = cur.execute ("insert into baker_events (dest, src, station, competitor, dtin, dtout, comment) values (?,?,?,?,?,?,?)", data)
 					print 'inserted new row - ', data
 				if debuglevel > 0:
-					print 'Last 10 Baker Packets Sent'
+					print 'Last 10 Baker Commands Received'
 					cur.setrowtrace(self.rowtrace)
 					for row in cur.execute('SELECT dest, src, station, competitor, dtin, dtout, comment from baker_events order by id desc limit 10'):
 						pass
@@ -326,14 +318,14 @@ class clsBakerDB():
 				for id, dest, src, station, competitor, dtin, dtout, comment in (cur.execute ("select id, dest, src, station, competitor, dtin, dtout, comment from baker_events where station = ? and competitor = ? ", data)):
 					cnt = 1
 					# The record exists, so change the values and update it
-					#print 'BakerCommon.iso86012epochtime(dtin) - ', BakerCommon.iso86012epochtime("ABCDEF"), "ABCDEF", isinstance(dtin.encode('utf-8'), str)
 					msgnew = "r1".encode('utf-8') + "," + station.encode('utf-8') + "," + competitor.encode('utf-8') + "," + BakerCommon.iso86012epochtime(dtin.encode('utf-8')) + "," + BakerCommon.iso86012epochtime(dtout.encode('utf-8')) + "," + comment.encode('utf-8')
 					bmsgnew = clsBakerMessage(bmsg.dest, bmsg.src, msgnew, None, None, "Internal", datetime.now())
 					bmsgnew.type = 'BakerCmdResponse'
 					pub.sendMessage('Add2SendQ',arg1=bmsgnew)
 				if cnt == 0:
 					# The record does not exist 
-					print 'r1,station, competitor,nodata'
+					if debuglevel > 1:
+						print 'BakerCmdReport1, no result'
 				if debuglevel > 1:
 					print 'Last 10 Baker Packets Sent'
 					cur.setrowtrace(self.rowtrace)
@@ -425,6 +417,9 @@ class thrdSendPacketQ(threading.Thread):
 	def CheckAndProcessQ(self):
 		lDelete = []
 		for k, bmsg in self.que.items():
+			if debuglevel > 0: 
+				print('%s APRS-IS > Baker Send Q item - [src, dest, msg, msgid, msgid_new, msgack, key, type, arrival - [%s, %s, %s, %s, %s, %s, %s, %s, %s]' % (datetime.strftime(datetime.now(), '%Y-%m-%d %H:%M:%S'), bmsg.src, bmsg.dest, bmsg.msg, bmsg.msgid, bmsg.msgid_new, bmsg.msgack, bmsg.key, bmsg.type, bmsg.dtarrival) )
+		for k, bmsg in self.que.items():
 			if bmsg.type == 'Need2ACK':
 				# Send ACK to this message, only send it once. If they do not receive this ACK, they will request another APRS Packet
 				pub.sendMessage('PacketSend', arg1=bmsg.aprspacket)
@@ -447,7 +442,7 @@ class thrdSendPacketQ(threading.Thread):
 						bmsg.dtfirstsent = dtnow
 					if debuglevel > 0:
 						print ('%s %s - Attempt %s/%s [%s, %s, %s, %s, %s]' % (datetime.strftime(datetime.now(), '%Y-%m-%d %H:%M:%S'),'APRS IS < Send Baker Packet', bmsg.sndcnt + 1, len(bmsg.snddelays) ,bmsg.src, bmsg.dest, bmsg.msg, bmsg.msgid, bmsg.dtarrival))
-					bmsg.aprspacket = ("%s>APZ009,TCPIP*::%s:%s%s\r\n" % (bmsg.src, bmsg.dest, bmsg.msg + '{', bmsg.msgid_new))
+					bmsg.aprspacket = ("%s>APZ009,TCPIP*::%s:%s%s" % (bmsg.src.strip(), '{0: <9}'.format(bmsg.dest), bmsg.msg + '{', bmsg.msgid_new))
 					bmsg.dtsent = datetime.now()
 					bmsg.sndcnt += 1
 					pub.sendMessage('PacketSend', arg1=bmsg.aprspacket)
@@ -470,16 +465,13 @@ class thrdSendPacketQ(threading.Thread):
 	def Need2ACK(self, arg1):
 		# Ack Rec'd Message - convert bmsg from rec'd to sendable
 		bmsg = arg1
-		temp = bmsg.dest.strip()
-		bmsg.dest = bmsg.src
-		bmsg.src = temp
-		bmsg.msg = 'ack' + bmsg.msgid
-		bmsg.msgid = None
-		bmsg.dtfirstsent = datetime.now()
-		bmsg.aprspacket = ("%s>APZ009,TCPIP*::%s:%s\r\n" % (bmsg.src, bmsg.dest.ljust(9,' '), bmsg.msg)) #ACK only
-		bmsg.dtsent = bmsg.dtfirstsent
-		bmsg.sndcnt = 1
-		self.Add2SendQ(bmsg)
+		bmsgnew = clsBakerMessage(bmsg.src, bmsg.dest, 'ack' + bmsg.msgid, None,None, bmsg.orig_packet, bmsg.dtarrival)
+		bmsgnew.type = 'Need2ACK'
+		bmsgnew.dtfirstsent = datetime.now()
+		bmsgnew.aprspacket = ("%s>APZ009,TCPIP*::%s:%s" % (bmsgnew.dest.strip(), '{0: <9}'.format(bmsgnew.src), bmsgnew.msg)) #ACK only
+		bmsgnew.dtsent = bmsg.dtfirstsent
+		bmsgnew.sndcnt = 1
+		self.Add2SendQ(bmsgnew)
 	
 	def MsgACK(self, arg1):
 		# Create key to match MsgACK Baker Packet to existing Baker Packet in SendQ. Send to SendQ
@@ -488,7 +480,7 @@ class thrdSendPacketQ(threading.Thread):
 		self.Add2SendQ(bmsg)
 	
 	def SendTestPacket(self, arg1):
-		bmsg = clsBakerMessage('BEAR100', 'KG7AFQ-10', 'Testing BAKER APRS-IS Application Server - Bear 100 Test Case', None, None, 'Test orig_packet', datetime.now())
+		bmsg = clsBakerMessage('ProvMar', '{0: <9}'.format('KG7AFQ-9'), 'Testing BAKER APRS-IS Application Server - Providence Marathon Test Case', None, None, 'Test orig_packet', datetime.now())
 		bmsg.type = 'BakerCmdResponse'
 		self.Add2SendQ(bmsg)
 		if debuglevel > 0:			
@@ -599,6 +591,7 @@ class BakerCommon(object):
 ############################
 # Main Program
 ############################
+
 if __name__ == '__main__':
 	print ('\nBAKER - APRS-IS Messaging Server')
 	print ('BAKER - BARC.APRS.Kelly KE7QHW(SK).Event.Reporting')
@@ -634,8 +627,7 @@ if __name__ == '__main__':
 			traceback.print_exc() 
 	finally:
 		pass
-	
-				
+					
 ###########################
 ### End
 ###########################
