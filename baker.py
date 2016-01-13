@@ -25,7 +25,6 @@ from datetime import datetime, timedelta
 import threading
 import time
 import select
-#import sqlite3
 import apsw # sqlite library w/threading support	
 from pubsub import pub
 # see this page for changes to libfap.py V 1/25/2015 https://www.raspberrypi.org/forums/viewtopic.php?t=44930&p=356499
@@ -174,7 +173,7 @@ class clsAPRSConnection():
 			pub.subscribe(self.PacketSend, 'PacketSend')
 			
 			# Logon to APRS-IS Server
-			login = 'user %s pass %s libfap-python testing V.01/25/2015 %s'  % (settings.APRS_USER, settings.APRS_PASSCODE , settings.FILTER_DETAILS)
+			login = 'user %s pass %s BAKER V.01 01/12/2016 %s '  % (settings.APRS_USER, settings.APRS_PASSCODE, settings.FILTER_DETAILS)
 			self.sock.send(login)
 			self.sock_file = self.sock.makefile()
 			libfap.fap_init()
@@ -190,7 +189,7 @@ class clsAPRSConnection():
 			self.connected = True
 		except Exception, err: 
 			print ('exception in clsAPRSConnection')
-			#traceback.print_exc()
+			traceback.print_exc()
 			# close socket
 			self.connected = False
 			if self.sock:
