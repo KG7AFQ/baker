@@ -1,10 +1,11 @@
 APRS_SERVER_HOST = 'socal.aprs2.net'
 APRS_SERVER_PORT = 14580
-APRS_USER = 'KG7AFQ'
-APRS_PASSCODE = '18869'
+APRS_USER = 'myCallSign'
+APRS_PASSCODE = 'my5digitAPRSPasscode'
 FILTER_DETAILS = "filter g/ProvMar\n"
 
-BAKER_DB = '/var/lib/sqlite/Baker.db'
+BAKER_DB = '/var/lib/sqlite/Baker.db' 
+
 # Each packet sent needs to receive an ACKMessage back, if no ACKMessage arrives in SEND-PACKETS_DELAY.Seconds(n), then send the packet again and wait SEND-PACKETS_DELAY.Seconds(n + 1)
 SEND_PACKETS_DELAY = [1,10,40,70,130,190,250] # Baker sends n times, waiting for msgack response. Baker only waits for n-1 msgack responses. Effective (send and listen) send times is n-1 
 
