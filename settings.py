@@ -4,7 +4,7 @@ APRS_SERVER_HOST = 'socal.aprs2.net'
 APRS_SERVER_PORT = 14580
 APRS_USER = 'myCallSign' # Required to login to APRS IS servers
 APRS_PASSCODE = 'my5digitAPRSPasscode' # You can find it many places, here is one http://www.george-smart.co.uk/wiki/APRS_Callpass
-FILTER_DETAILS = "filter g/ProvMar\n"
+FILTER_DETAILS = "filter g/myAcronym\n" # Could be a callsign or quasi callsign or an acronym or whatever. More than one and less than n filters may be use in this variable.
 
 BAKER_DB = '/var/lib/sqlite/Baker.db' 
 
