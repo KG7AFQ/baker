@@ -1,7 +1,7 @@
 APRS_SERVER_HOST = 'socal.aprs2.net'
 APRS_SERVER_PORT = 14580
-APRS_USER = 'myCallSign'
-APRS_PASSCODE = 'my5digitAPRSPasscode'
+APRS_USER = 'myCallSign' # Required to login to APRS IS servers
+APRS_PASSCODE = 'my5digitAPRSPasscode' # You can find it many places, here is one http://www.george-smart.co.uk/wiki/APRS_Callpass
 FILTER_DETAILS = "filter g/ProvMar\n"
 
 BAKER_DB = '/var/lib/sqlite/Baker.db' 
