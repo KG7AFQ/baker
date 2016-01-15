@@ -20,17 +20,12 @@
 #	OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, 
 #	OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  
-import socket, traceback, sys, copy, re
+import socket, traceback, sys, copy, re, time, threading, select
 from datetime import datetime, timedelta 
-import threading
-import time
-import select
-import apsw # sqlite library w/threading support	
-from pubsub import pub
-# see this page for changes to libfap.py V 1/25/2015 https://www.raspberrypi.org/forums/viewtopic.php?t=44930&p=356499
-from libfap import *
+import apsw # See README.md
+from pubsub import pub # See README.md
+from libfap import * # See README.md
 import settings
-
 
 ############################
 # Classes
@@ -199,8 +194,10 @@ class clsAPRSConnection():
 	def PacketSend(self, arg1):
 		pkt2Send = arg1
 		try:
-			self.sock_file.write(pkt2Send+ '\r\n')
+			self.sock_file.write(pkt2Send + '\r\n')
 			self.sock_file.flush()
+			if debuglevel > 0:
+				print "pkt2Send - ", pkt2Send + '\r\n'
 		except Exception as error:
 			print('exception in clsAPRSConnection.PacketSend')
 			print ('sys.exc_info()[0] - ',sys.exc_info())
@@ -439,7 +436,7 @@ class thrdSendPacketQ(threading.Thread):
 				if  (bmsg.sndcnt == 0) or (dtnow > bmsg.dtfirstsent + timedelta(seconds=bmsg.snddelays[bmsg.sndcnt])):
 					if bmsg.sndcnt == 0:
 						bmsg.dtfirstsent = dtnow
-					if debuglevel > 0:
+					if debuglevel > 1:
 						print ('%s %s - Attempt %s/%s [%s, %s, %s, %s, %s]' % (datetime.strftime(datetime.now(), '%Y-%m-%d %H:%M:%S'),'APRS IS < Send Baker Packet', bmsg.sndcnt + 1, len(bmsg.snddelays) ,bmsg.src, bmsg.dest, bmsg.msg, bmsg.msgid, bmsg.dtarrival))
 					bmsg.aprspacket = ("%s>APZ009,TCPIP*::%s:%s%s" % (bmsg.src.strip(), '{0: <9}'.format(bmsg.dest), bmsg.msg + '{', bmsg.msgid_new))
 					bmsg.dtsent = datetime.now()
@@ -479,7 +476,7 @@ class thrdSendPacketQ(threading.Thread):
 		self.Add2SendQ(bmsg)
 	
 	def SendTestPacket(self, arg1):
-		bmsg = clsBakerMessage('ProvMar', '{0: <9}'.format('KG7AFQ-9'), 'Testing BAKER APRS-IS Application Server - Providence Marathon Test Case', None, None, 'Test orig_packet', datetime.now())
+		bmsg = clsBakerMessage( ''.join([c for c in settings.FILTER_DETAILS if c.isupper()]), '{0: <9}'.format(settings.TEST_CLIENT), 'Testing BAKER APRS-IS Application Server - Providence Marathon Test Case', None, None, 'Test orig_packet', datetime.now())
 		bmsg.type = 'BakerCmdResponse'
 		self.Add2SendQ(bmsg)
 		if debuglevel > 0:			
