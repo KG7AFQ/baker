@@ -22,7 +22,7 @@ Baker is even more effective when a APRS client is custom built for an event or 
 
 # Install
 
-Python 2.7 is the language used to write baker. It could run on Python 3 but the differences between the two is a huge topic of discussion. My take is that 2.7 has been around awhile and is deeply embedded in OSes and other significan applications. To convert to Python 3 could be done without much effort by a competent programmer. Do not confuse Python 3 with SQLite 3. There is no relationship between these versions except in their naming scheme.::
+Python 2.7 is the language used to write baker. It could run on Python 3 but the differences between the two is a huge topic of discussion. My take is that 2.7 has been around awhile and is deeply embedded in OSes and other significan applications. To convert to Python 3 could be done without much effort by a competent programmer. Do not confuse Python 3 with SQLite 3. There is no relationship between these versions except in their naming scheme.
 *Install Python if you need to. Most Linux systems have Python installed.
 
 Place all files from the Github repository into the directory of your choice.
