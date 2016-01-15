@@ -20,11 +20,12 @@
 
   Baker is even more effective when a APRS client is custom built for an event or radio club. This will allow volunteers to become even more accurate and effecient during a public event.
 
-#Install
+# Install
 
 Python 2.7 is the language used to write baker. It could run on Python 3 but the differences between the two is a huge topic of discussion. My take is that 2.7 has been around awhile and is deeply embedded in OSes and other significan applications. To convert to Python 3 could be done without much effort by a competent programmer. Do not confuse Python 3 with SQLite 3. There is no relationship between these versions except in their naming scheme.
+/tInstall Python if you need to. Most Linux systems have Python installed.
 
-Place all files in the directory of your choice.
+Place all files from the Github repository into the directory of your choice.
 
 Install any python libraries (see the imports in baker.py)
 
@@ -32,6 +33,23 @@ Install any python libraries (see the imports in baker.py)
 /t(In libfap.py lines 6 and or 7 may need to be adjusted after you install libfap C, one of these should work)
 /t(See this page for changes that may be require to libfap.py V1.5 1/25/2015 https://www.raspberrypi.org/forums/viewtopic.php?t=44930&p=356499)
 
-/tTo use APSW (SQLite interface for Python) check the details from APSW docs at https://rogerbinns.github.io/apsw/ I have been using V3.8 (stable) in my latest efforts. (APSW is used instead of pysqlite because APSW handles threading better. It does not handle it perfectly but better. I am watching for a release from APSW or pysqlite that is completely thread safe)
+/tTo use apsw (SQLite interface for Python) check the details from APSW docs at https://rogerbinns.github.io/apsw/ I have been using V3.8 (stable) in my latest efforts. (APSW is used instead of pysqlite because APSW handles threading better. It does not handle it perfectly but better. I am watching for a release from APSW or pysqlite that is completely thread safe)
+
+/tTo use pubsub see http://pubsub.sourceforge.net/installation.html . It should install with little effort. (It is a publish / subscribe communications library for Python. It greatly simplifies thread to thread and class to class code usage and code use in general)
+
+# Configure / Run
+
+Edit the settings.py file to personalize your communications server.
+/tAPRS_USER should be your callsign or an station callsign
+/tAPRS_PASSCODE should be a passcode created using the callsign in APRS_USER
+/tFILTER_DETAILS = "filter g/?????\n". Don't use ProvMar. Create your own. This is the quasi callsign that you will use to communicate with clients. A club name or an event name would be a good choice. Multiple filters can be included in this variable. Make sure the callsign in Filter_Details is in upper case.
+/tThe APRS_SERVER_HOST could be set to rotate.... but since your clients will probably be local to the baker server, I suggest you use a Tier2 APRS server nearest you. This would keep packet travels back and forth from the clients to a much smaller area than the world over. It's default setting is to southern California. If you can persuade the APRS clients to use the same Tier2 server than you are even more organized than I am.
 
 
+Run from the command line by executing "baker.py". It can be done in a number of ways. "python baker.py", "./baker.py" if the file is set to executable. It could also be run on boot as well. A competent linux administrator can help you with this.
+
+# Operation
+
+There are a few commands can be run interactively from the console to interact with baker. 
+/tq <cr> will cause baker to halt operations. This takes a moment as the threads are brought down gracefully.
+/tt <cr> will cause a test packet to be sent from baker to the SendQ and sent to a given client client from FILTER_DETAILS. Make sure the callsign in Filter_Details is in upper case.
