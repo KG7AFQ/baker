@@ -51,6 +51,6 @@ Run from the command line by executing "baker.py". It can be done in a number of
 ## Operation
 
 There are a few commands can be run interactively from the console to interact with baker.
-* q '''<<Return>''' will cause baker to halt operations. This takes a moment as the threads are brought down gracefully.
-* t '''<Return>''' will cause a test packet to be sent from baker to the SendQ and sent to a given client client from FILTER_DETAILS. Make sure the callsign in Filter_Details is in upper case.
-* d <Return> will cause the debugging levels to change or to provide more console feedback while baker is running. The levels are 0 through 3. The default is 1.
+* q "Return" will cause baker to halt operations. This takes a moment as the threads are brought down gracefully.
+* t "Return" will cause a test packet to be sent from baker to the SendQ and sent to a given client client from FILTER_DETAILS. Make sure the callsign in Filter_Details is in upper case.
+* d "Return" will cause the debugging levels to change or to provide more console feedback while baker is running. The levels are 0 through 3. The default is 1.
