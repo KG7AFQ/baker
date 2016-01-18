@@ -22,20 +22,20 @@ Baker is even more effective when a APRS client is custom built for an event or 
 
 ## Install
 
-Python 2.7 is the language used to write baker. It could run on Python 3 but the differences between the two is a huge topic of discussion. My take is that 2.7 has been around awhile and is deeply embedded in OSes and other significan applications. To convert to Python 3 could be done without much effort by a competent programmer. Do not confuse Python 3 with SQLite 3. There is no relationship between these versions except in their naming scheme.
-* Install Python if you need to. Most Linux systems have Python installed.
+* Python 2.7 is the language used to write baker. It could run on Python 3 but the differences between the two is a huge topic of discussion. My take is that 2.7 has been around awhile and is deeply embedded in OSes and other significan applications. To convert to Python 3 could be done without much effort by a competent programmer. Do not confuse Python 3 with SQLite 3. There is no relationship between these versions except in their naming scheme.
+** Install Python if you need to. Most Linux systems have Python installed.
 
-Place all files from the Github repository into the directory of your choice.
+* Place all files from the Github repository into the directory of your choice.
 
-Install any python libraries (see the imports in baker.py)
+*Install any python libraries (see the imports in baker.py)
 
-To use libfap.py you must install libfap C libraries. Here is their URL http://www.pakettiradio.net/libfap/.
-* (In libfap.py lines 6 and or 7 may need to be adjusted after you install libfap C, one of these should work)
-* (See this page for changes that may be require to libfap.py V1.5 1/25/2015 https://www.raspberrypi.org/forums/viewtopic.php?t=44930&p=356499)
+* To use libfap.py you must install libfap C libraries. Here is their URL http://www.pakettiradio.net/libfap/.
+** (In libfap.py lines 6 and or 7 may need to be adjusted after you install libfap C, one of these should work)
+** (See this page for changes that may be require to libfap.py V1.5 1/25/2015 https://www.raspberrypi.org/forums/viewtopic.php?t=44930&p=356499)
 
-To use apsw (SQLite interface for Python) check the details from APSW docs at https://rogerbinns.github.io/apsw/ I have been using V3.8 (stable) in my latest efforts. (APSW is used instead of pysqlite because APSW handles threading better. It does not handle it perfectly but better. I am watching for a release from APSW or pysqlite that is completely thread safe)
+*To use apsw (SQLite interface for Python) check the details from APSW docs at https://rogerbinns.github.io/apsw/ I have been using V3.8 (stable) in my latest efforts. (APSW is used instead of pysqlite because APSW handles threading better. It does not handle it perfectly but better. I am watching for a release from APSW or pysqlite that is completely thread safe)
 
-To use pubsub see http://pubsub.sourceforge.net/installation.html . It should install with little effort. (It is a publish / subscribe communications library for Python. It greatly simplifies thread to thread and class to class code usage and code use in general)
+*To use pubsub see http://pubsub.sourceforge.net/installation.html . It should install with little effort. (It is a publish / subscribe communications library for Python. It greatly simplifies thread to thread and class to class code usage and code use in general)
 
 ## Configure / Run
 
