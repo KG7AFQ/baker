@@ -35,7 +35,7 @@ class clsBakerMessage():
 	def __init__(self, src, dest, msg, msgid, msgack, orig_packet, dtarrival, key=''):
 		try:
 			self.src = src.upper()
-			self.dest =  dest.upper()
+			self.dest = dest.upper()
 			self.msg = msg.replace("'","?").replace('"','?') # replace single and double quotes with question mark
 			self.msgid = msgid
 			self.msgack = msgack # To match msgack in ReceiveQ to item sent from Send Q, use key
@@ -168,7 +168,7 @@ class clsAPRSConnection():
 			pub.subscribe(self.PacketSend, 'PacketSend')
 			
 			# Logon to APRS-IS Server
-			login = 'user %s pass %s BAKER V.01 01/12/2016 %s '  % (settings.APRS_USER, settings.APRS_PASSCODE, settings.FILTER_DETAILS)
+			login = 'user %s pass %s vers BAKER V.01_01/12/2016 %s '  % (settings.APRS_USER, settings.APRS_PASSCODE, settings.FILTER_DETAILS)
 			self.sock.send(login)
 			self.sock_file = self.sock.makefile()
 			libfap.fap_init()
@@ -197,7 +197,7 @@ class clsAPRSConnection():
 			self.sock_file.write(pkt2Send + '\r\n')
 			self.sock_file.flush()
 			if debuglevel > 0:
-				print "pkt2Send - ", pkt2Send + '\r\n'
+				print "pkt2Send - ", pkt2Send
 		except Exception as error:
 			print('exception in clsAPRSConnection.PacketSend')
 			print ('sys.exc_info()[0] - ',sys.exc_info())
@@ -436,7 +436,7 @@ class thrdSendPacketQ(threading.Thread):
 				if  (bmsg.sndcnt == 0) or (dtnow > bmsg.dtfirstsent + timedelta(seconds=bmsg.snddelays[bmsg.sndcnt])):
 					if bmsg.sndcnt == 0:
 						bmsg.dtfirstsent = dtnow
-					if debuglevel > 1:
+					if debuglevel > 0:
 						print ('%s %s - Attempt %s/%s [%s, %s, %s, %s, %s]' % (datetime.strftime(datetime.now(), '%Y-%m-%d %H:%M:%S'),'APRS IS < Send Baker Packet', bmsg.sndcnt + 1, len(bmsg.snddelays) ,bmsg.src, bmsg.dest, bmsg.msg, bmsg.msgid, bmsg.dtarrival))
 					bmsg.aprspacket = ("%s>APZ009,TCPIP*::%s:%s%s" % (bmsg.src.strip(), '{0: <9}'.format(bmsg.dest), bmsg.msg + '{', bmsg.msgid_new))
 					bmsg.dtsent = datetime.now()
@@ -476,11 +476,13 @@ class thrdSendPacketQ(threading.Thread):
 		self.Add2SendQ(bmsg)
 	
 	def SendTestPacket(self, arg1):
-		bmsg = clsBakerMessage( ''.join([c for c in settings.FILTER_DETAILS if c.isupper()]), '{0: <9}'.format(settings.TEST_CLIENT), 'Testing BAKER APRS-IS Application Server - Providence Marathon Test Case', None, None, 'Test orig_packet', datetime.now())
+		src1 = ''.join([c for c in settings.FILTER_DETAILS if c.isupper()])
+		dest1 = '{0: <9}'.format(settings.TEST_CLIENT)
+		bmsg = clsBakerMessage( src1, dest1, 'BAKER APRS-IS Messaging - Providence Marathon', None, None, 'Key of no key' , datetime.now())
 		bmsg.type = 'BakerCmdResponse'
 		self.Add2SendQ(bmsg)
 		if debuglevel > 0:			
-			print ('%s %s - [%s, %s, %s, %s, %s, %s]' % (datetime.strftime(datetime.now(), '%Y-%m-%d %H:%M:%S'),'APRS IS < Test Packet', bmsg.src, bmsg.dest, bmsg.msg, bmsg.msgid, bmsg.msgid_new, bmsg.dtarrival))
+			print ('%s %s - [yyy%s, %s, %s, %s, %s, %syyy]' % (datetime.strftime(datetime.now(), '%Y-%m-%d %H:%M:%S'),'APRS IS < Test Packet', bmsg.src, bmsg.dest, bmsg.msg, bmsg.msgid, bmsg.msgid_new, bmsg.dtarrival))
 
 	def close(self):		
 		self.exit = True
